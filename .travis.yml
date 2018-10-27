@@ -25,7 +25,7 @@ jobs:
       script: echo ">>> BUILDING <<<<"
     - stage: test
       script: echo ">>> TESTING 1 <<<<"
-    - script: echo ">>> TESTING 2 <<<< && "
+    - script: echo ">>> TESTING 2 <<<<"
     - stage: GitHub Release
       script: skip
       deploy:
