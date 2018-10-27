@@ -10,8 +10,10 @@ language: generic
 #  quiet: true
 #  submodules: true
 
-#env:
-#  global:
+env:
+  global:
+    - APP_NAME=travistest
+    - IMAGE_BASE=${DOCKER_USERNAME}/${APP_NAME}:${TRAVIS_BRANCH}
 #  - SECRET_VAR1=SECRET1
 #  matrix:
 #  - SECRET_VAR2=SECRET2
@@ -26,13 +28,17 @@ jobs:
   include:
     - stage: build
       script:
-        - echo ">>> BUILDING <<<<"
+        - echo ">>> BUILDING STARTED <<<<"
+        - env
+        - docker pull ${DOCKER_USERNAME}/travistest:${TRAVIS_BRANCH}
+        - docker images
         - docker build -t ${DOCKER_USERNAME}/travistest:${TRAVIS_BRANCH}-test .
         - docker images
-        - if [[ ${TRAVIS_BRANCH} =~ ^development|staging|production$ ]]; then
+        - if [[ ${TRAVIS_BRANCH} =~ development|staging|production ]]; then
             echo "${DOCKER_PASSWORD}" | docker login --username "${DOCKER_USERNAME}" --password-stdin;
             docker push ${DOCKER_USERNAME}/travistest:${TRAVIS_BRANCH}-test;
           fi
+        - echo ">>> BUILDING FINISHED <<<<"
 #    - stage: test
 #      script:
 #        - echo ">>> TESTING 1 <<<<"
@@ -51,7 +57,9 @@ jobs:
       script:
         - echo ">>> Deploy 2 Dockerhub ${TRAVIS_BRANCH} <<<<"
         - docker images
-        - if [[ ${TRAVIS_BRANCH} =~ ^development|staging|production$ ]]; then
+        - if [[ ${TRAVIS_BRANCH} =~ development|staging|production ]]; then
+            docker pull ${DOCKER_USERNAME}/travistest:${TRAVIS_BRANCH}
+            docker images
             docker build -t ${DOCKER_USERNAME}/travistest:${TRAVIS_BRANCH} . ;
             echo "${DOCKER_PASSWORD}" | docker login --username "${DOCKER_USERNAME}" --password-stdin;
             docker push ${DOCKER_USERNAME}/travistest:${TRAVIS_BRANCH};

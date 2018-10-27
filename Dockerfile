@@ -1,3 +1,3 @@
 FROM busybox
 
-RUN alias ll="ls -lah --color"
+RUN echo "ll='ls -lah --color'" > /root/.ashrc
