@@ -32,7 +32,7 @@ jobs:
       script:
         - echo ">>> BUILDING STARTED <<<<"
         - env
-        - docker pull ${IMAGE_NAME}
+        - docker pull ${IMAGE_NAME}; true
         - docker images
         - docker build -t ${IMAGE_NAME_TEST} .
         - docker images
@@ -60,7 +60,7 @@ jobs:
         - echo ">>> Deploy 2 Dockerhub ${TRAVIS_BRANCH} <<<<"
         - docker images
         - if [[ ${TRAVIS_BRANCH} =~ $REGEX_PUSH_BRANCH ]]; then
-            docker pull ${IMAGE_NAME};
+            docker pull ${IMAGE_NAME}; true;
             docker images;
             docker build -t ${IMAGE_NAME} . ;
             echo "${DOCKER_PASSWORD}" | docker login --username "${DOCKER_USERNAME}" --password-stdin;
