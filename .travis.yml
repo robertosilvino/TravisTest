@@ -25,7 +25,15 @@ jobs:
       script: echo ">>> BUILDING <<<<"
     - stage: test
       script: echo ">>> TESTING 1 <<<<"
-    - script: echo ">>> TESTING 2 <<<<"
+    - script: echo ">>> TESTING 2 <<<< && "
+    - stage: GitHub Release
+      script: skip
+      deploy:
+        provider: releases
+        api_key: "$GITHUB_OAUTH_TOKEN"
+        skip_cleanup: true
+        on:
+          tags: true
     - stage: deploy
 
 
