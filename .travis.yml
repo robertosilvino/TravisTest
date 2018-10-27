@@ -1,0 +1,44 @@
+sudo: required
+
+language: generic
+
+git:
+  depth: 5
+  quiet: true
+  submodules: true
+
+env:
+  global:
+  - SECRET_VAR1=SECRET1
+  matrix:
+  - SECRET_VAR2=SECRET2
+
+stages:
+  - build
+  - test
+  - name: deploy
+    if: branch != development
+
+jobs:
+  include:
+    - stage: build
+      script: echo ">>> BUILDING <<<<"
+    - stage: test
+      script: echo ">>> TESTING 1 <<<<"
+    - script: echo ">>> TESTING 2 <<<<"
+    - stage: deploy
+
+
+
+#apt addons:
+#before_install:
+#install:
+#before_script:
+#script:
+#before_cache:
+#after_success:
+#after_failure:
+#before_deploy:
+#deploy:
+#after_deploy:
+#after_script:
