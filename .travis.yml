@@ -22,20 +22,76 @@ language: generic
 jobs:
   include:
     - stage: build
-      script: echo ">>> BUILDING <<<<"
+      script:
+        - echo ">>> BUILDING <<<<"
+        - docker build -t robertosilvino/TravisTest:${TRAVIS_BRANCH} .
     - stage: test
       script: echo ">>> TESTING 1 <<<<"
     - script: echo ">>> TESTING 2 <<<<"
-    - stage: GitHub Release
-      script: skip
+    - stage: Deploys
+      script:
+#        - skip
+        - echo ">>> Deploy 1 TAG <<<<"
       deploy:
         provider: releases
         api_key: "$GITHUB_OAUTH_TOKEN"
         skip_cleanup: true
         on:
           tags: true
-    - stage: deploy
+    - script:
+      - echo ">>> Deploy 2 Dockerhub <<<<"
+      deploy:
+        provider: script
+        script:
+#          - bash scripts/deploy.sh staging $TRAVIS_TAG
+          - echo "${DOCKER_HUB_PASSWORD}" | docker login --username "${DOCKER_HUB_USER}" --password-stdin
+          - docker push robertosilvino/TravisTest:${TRAVIS_BRANCH}
+        on:
+#          branch: development
+           condition: $TRAVIS_BRANCH =~ ^development|staging|production$
 
+
+# para criar um release no github conforme a tag criada no Commit
+#    - stage: GitHub Release
+#      script: skip
+#      deploy:
+#        provider: releases
+#        api_key: "$GITHUB_OAUTH_TOKEN"
+#        skip_cleanup: true
+#        on:
+#          tags: true
+
+#deploy:
+#  on:
+#    branch: release
+#    condition: $MY_ENV = super_awesome
+# ou
+#    all_branches: true
+#    repo: travis-ci/dpl
+
+#deploy:
+#  overwrite: true
+#  file: "FILE TO UPLOAD"
+
+#deploy:
+#  provider: script
+#  script: deploy.sh
+#  on:
+#    all_branches: true
+#    condition: $TRAVIS_BRANCH =~ ^staging|production$
+
+
+#deploy:
+#  # deploy develop to the staging environment
+#  - provider: script
+#    script: bash scripts/deploy.sh staging $TRAVIS_TAG
+#    on:
+#      branch: develop
+#  # deploy master to production
+#  - provider: script
+#    script: bash scripts/deploy.sh production $TRAVIS_TAG
+#    on:
+#      branch: master
 
 
 #apt addons:
@@ -50,3 +106,16 @@ jobs:
 #deploy:
 #after_deploy:
 #after_script:
+
+
+######dockerhub
+
+#before_install:
+#  - docker build -t cinhtau/elasticsearch .
+#script:
+#  - docker images cinhtau/elasticsearch
+#after_success:
+#  - if [ "$TRAVIS_BRANCH" == "master" ]; then
+#    docker login -e="$DOCKER_EMAIL" -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD";
+#    docker push cinhtau/elasticsearch;
+#    fi
