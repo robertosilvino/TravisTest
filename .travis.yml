@@ -2,22 +2,22 @@ sudo: required
 
 language: generic
 
-git:
-  depth: 5
-  quiet: true
-  submodules: true
+#git:
+#  depth: 5
+#  quiet: true
+#  submodules: true
 
-env:
-  global:
-  - SECRET_VAR1=SECRET1
-  matrix:
-  - SECRET_VAR2=SECRET2
-
-stages:
-  - build
-  - test
-  - name: deploy
-    if: branch != development
+#env:
+#  global:
+#  - SECRET_VAR1=SECRET1
+#  matrix:
+#  - SECRET_VAR2=SECRET2
+#
+#stages:
+#  - build
+#  - test
+#  - name: deploy
+#    if: branch != development
 
 jobs:
   include:
