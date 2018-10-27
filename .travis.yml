@@ -13,7 +13,9 @@ language: generic
 env:
   global:
     - APP_NAME=travistest
-    - IMAGE_BASE=${DOCKER_USERNAME}/${APP_NAME}:${TRAVIS_BRANCH}
+    - IMAGE_NAME=${DOCKER_USERNAME}/${APP_NAME}:${TRAVIS_BRANCH}
+    - IMAGE_NAME_TEST=${DOCKER_USERNAME}/${APP_NAME}:${TRAVIS_BRANCH}-test
+    - REGEX_PUSH_BRANCH='development|staging|production'
 #  - SECRET_VAR1=SECRET1
 #  matrix:
 #  - SECRET_VAR2=SECRET2
@@ -30,13 +32,13 @@ jobs:
       script:
         - echo ">>> BUILDING STARTED <<<<"
         - env
-        - docker pull ${DOCKER_USERNAME}/travistest:${TRAVIS_BRANCH}
+        - docker pull ${IMAGE_NAME}
         - docker images
-        - docker build -t ${DOCKER_USERNAME}/travistest:${TRAVIS_BRANCH}-test .
+        - docker build -t ${IMAGE_NAME_TEST} .
         - docker images
-        - if [[ ${TRAVIS_BRANCH} =~ development|staging|production ]]; then
+        - if [[ ${TRAVIS_BRANCH} =~ $REGEX_PUSH_BRANCH ]]; then
             echo "${DOCKER_PASSWORD}" | docker login --username "${DOCKER_USERNAME}" --password-stdin;
-            docker push ${DOCKER_USERNAME}/travistest:${TRAVIS_BRANCH}-test;
+            docker push ${IMAGE_NAME_TEST};
           fi
         - echo ">>> BUILDING FINISHED <<<<"
 #    - stage: test
@@ -57,12 +59,12 @@ jobs:
       script:
         - echo ">>> Deploy 2 Dockerhub ${TRAVIS_BRANCH} <<<<"
         - docker images
-        - if [[ ${TRAVIS_BRANCH} =~ development|staging|production ]]; then
-            docker pull ${DOCKER_USERNAME}/travistest:${TRAVIS_BRANCH}
-            docker images
-            docker build -t ${DOCKER_USERNAME}/travistest:${TRAVIS_BRANCH} . ;
+        - if [[ ${TRAVIS_BRANCH} =~ $REGEX_PUSH_BRANCH ]]; then
+            docker pull ${IMAGE_NAME};
+            docker images;
+            docker build -t ${IMAGE_NAME} . ;
             echo "${DOCKER_PASSWORD}" | docker login --username "${DOCKER_USERNAME}" --password-stdin;
-            docker push ${DOCKER_USERNAME}/travistest:${TRAVIS_BRANCH};
+            docker push ${IMAGE_NAME};
           fi
 #    docker login -e="$DOCKER_EMAIL" -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD";
 #    docker push cinhtau/elasticsearch;
