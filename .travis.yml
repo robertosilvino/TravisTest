@@ -36,9 +36,11 @@ jobs:
         - docker images
         - docker build -t ${IMAGE_NAME_TEST} .
         - docker images
-        - if [[ ${TRAVIS_BRANCH} =~ $REGEX_PUSH_BRANCH ]]; then
+        - if [[ ${TRAVIS_BRANCH} =~ ${REGEX_PUSH_BRANCH} ]]; then
             echo "${DOCKER_PASSWORD}" | docker login --username "${DOCKER_USERNAME}" --password-stdin;
             docker push ${IMAGE_NAME_TEST};
+          else
+            echo ">>> SKIP PUSHING <<<<";
           fi
         - echo ">>> BUILDING FINISHED <<<<"
 #    - stage: test
@@ -59,7 +61,7 @@ jobs:
       script:
         - echo ">>> Deploy 2 Dockerhub ${TRAVIS_BRANCH} <<<<"
         - docker images
-        - if [[ ${TRAVIS_BRANCH} =~ $REGEX_PUSH_BRANCH ]]; then
+        - if [[ ${TRAVIS_BRANCH} =~ ${REGEX_PUSH_BRANCH} ]]; then
             docker pull ${IMAGE_NAME}; true;
             docker images;
             docker build -t ${IMAGE_NAME} . ;
