@@ -2,30 +2,29 @@ sudo: required
 
 language: generic
 
-#services:
-#  - docker
-
-#git:
-#  depth: 5
-#  quiet: true
-#  submodules: true
-
 env:
   global:
     - APP_NAME=travistest
     - DOCKER_HUB_NAME=${DOCKER_USERNAME}/${APP_NAME}
     - IMAGE_NAME=${DOCKER_HUB_NAME}:${TRAVIS_BRANCH}
     - IMAGE_NAME_TEST=${IMAGE_NAME}-test
-    - REGEX_PUSH_BRANCH='development|staging|production'
-#  - SECRET_VAR1=SECRET1
-#  matrix:
-#  - SECRET_VAR2=SECRET2
-#
-#stages:
-#  - build
-#  - test
-#  - name: deploy
-#    if: branch != development
+    - REGEX_PUSH_BRANCH='development|staging|master'
+    - REGEX_PUSH_BRANCH2=/($REGEX_PUSH_BRANCH)/
+    - REGEX_PUSH_BRANCH3=/(development|staging|master)/
+    - REGEX_PUSH_BRANCH4=/test/
+    - REGEX_BRANCH_CI='/^([0-9A-Za-z][0-9A-Za-z.-]+)_([0-9A-Za-z.-]+)_(development|staging|master)$/'
+    - REGEX_BRANCH_CI2='^([0-9A-Za-z][0-9A-Za-z.-]+)_([0-9A-Za-z.-]+)_(development|staging|master)$'
+    - REGEX_DEPLOY_BRANCH='staging|master'
+
+branches:
+  only:
+    - /^([0-9A-Za-z][0-9A-Za-z.-]+)_([0-9A-Za-z.-]+)_(development|staging|master)$/
+
+stages:
+  - build
+  - test
+  - name: deploy
+    if: branch =~ /^([0-9A-Za-z][0-9A-Za-z.-]+)_([0-9A-Za-z.-]+)_(staging|master)$/
 
 jobs:
   include:
@@ -36,23 +35,39 @@ jobs:
         - docker images
         - docker build -t ${IMAGE_NAME_TEST} .
         - docker images
-        - if [[ ${TRAVIS_BRANCH} =~ ${REGEX_PUSH_BRANCH} ]]; then
-            echo "${DOCKER_PASSWORD}" | docker login --username "${DOCKER_USERNAME}" --password-stdin;
-            docker push ${IMAGE_NAME_TEST};
-          fi
+        - echo "${DOCKER_PASSWORD}" | docker login --username "${DOCKER_USERNAME}" --password-stdin
+        - docker push ${IMAGE_NAME_TEST}
         - echo ">>> BUILDING FINISHED <<<<"
-    - stage: Deploys
+    - stage: deploy
       script:
         - echo ">>> Deploy 2 Dockerhub ${TRAVIS_BRANCH} <<<<"
         - docker images
         - if [[ ${TRAVIS_BRANCH} =~ ${REGEX_PUSH_BRANCH} ]]; then
-            docker pull ${IMAGE_NAME} || true;
+            docker pull ${IMAGE_NAME_TEST} || true;
+            docker tag ${IMAGE_NAME_TEST} ${IMAGE_NAME};
             docker images;
-            docker build -t ${IMAGE_NAME} . ;
             echo "${DOCKER_PASSWORD}" | docker login --username "${DOCKER_USERNAME}" --password-stdin;
             docker push ${IMAGE_NAME};
           fi
 
+#            docker tag ${IMAGE_NAME_TEST} ${IMAGE_NAME};
+#            docker build -t ${IMAGE_NAME} . ;
+
+#services:
+#  - docker
+
+#git:
+#  depth: 5
+#  quiet: true
+#  submodules: true
+
+#    - /^([0-9A-Za-z][0-9A-Za-z.-]+)_([0-9A-Za-z.-]+)_(development|staging|master)$/
+#  - name: deploy
+#    if: branch =~ /(development|staging|master)/
+#    if: branch =~ env(REGEX_PUSH_BRANCH4)
+#    if: branch =~ /^([0-9A-Za-z][0-9A-Za-z.-]+)_([0-9A-Za-z.-]+)_(development|staging|master)$/
+#  - name: deploy
+#    if: branch =~ ${REGEX_PUSH_BRANCH}
 
 # para criar um release no github conforme a tag criada no Commit
 #    - stage: GitHub Release
