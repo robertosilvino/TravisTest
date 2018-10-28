@@ -15,9 +15,9 @@ env:
     - REGEX_BRANCH_CI='/^([0-9A-Za-z][0-9A-Za-z.-]+)_([0-9A-Za-z.-]+)_(development|staging|master)$/'
     - REGEX_BRANCH_CI2='^([0-9A-Za-z][0-9A-Za-z.-]+)_([0-9A-Za-z.-]+)_(development|staging|master)$'
     - REGEX_DEPLOY_BRANCH='staging|master'
-    - BRANCH_VERSION=''
-    - BRANCH_APP=''
-    - BRANCH_STAGE=''
+#    - BRANCH_VERSION=''
+#    - BRANCH_APP=''
+#    - BRANCH_STAGE=''
 
 branches:
   only:
@@ -56,18 +56,18 @@ jobs:
             echo "${DOCKER_PASSWORD}" | docker login --username "${DOCKER_USERNAME}" --password-stdin;
             docker push ${IMAGE_NAME};
           fi
-    - stage: deploy
-      script: skip
-      deploy:
-        provider: releases
-        api_key: "$GITHUB_OAUTH_TOKEN"
-        skip_cleanup: true
-        on:
-#          condition: $TRAVIS_BRANCH =~ staging|master
-          tags: true
-
-#            docker tag ${IMAGE_NAME_TEST} ${IMAGE_NAME};
-#            docker build -t ${IMAGE_NAME} . ;
+#    - stage: deploy
+#      script: skip
+#      deploy:
+#        provider: releases
+#        api_key: "$GITHUB_OAUTH_TOKEN"
+#        skip_cleanup: true
+#        on:
+##          condition: $TRAVIS_BRANCH =~ staging|master
+#          tags: true
+#
+##            docker tag ${IMAGE_NAME_TEST} ${IMAGE_NAME};
+##            docker build -t ${IMAGE_NAME} . ;
 
 #services:
 #  - docker
