@@ -13,8 +13,9 @@ language: generic
 env:
   global:
     - APP_NAME=travistest
-    - IMAGE_NAME=${DOCKER_USERNAME}/${APP_NAME}:${TRAVIS_BRANCH}
-    - IMAGE_NAME_TEST=${DOCKER_USERNAME}/${APP_NAME}:${TRAVIS_BRANCH}-test
+    - DOCKER_HUB_NAME=${DOCKER_USERNAME}/${APP_NAME}
+    - IMAGE_NAME=${DOCKER_HUB_NAME}:${TRAVIS_BRANCH}
+    - IMAGE_NAME_TEST=${IMAGE_NAME}-test
     - REGEX_PUSH_BRANCH='development|staging|production'
 #  - SECRET_VAR1=SECRET1
 #  matrix:
@@ -31,59 +32,26 @@ jobs:
     - stage: build
       script:
         - echo ">>> BUILDING STARTED <<<<"
-        - env
-        - docker pull ${IMAGE_NAME}; true
+        - docker pull ${IMAGE_NAME} || true
         - docker images
         - docker build -t ${IMAGE_NAME_TEST} .
         - docker images
         - if [[ ${TRAVIS_BRANCH} =~ ${REGEX_PUSH_BRANCH} ]]; then
             echo "${DOCKER_PASSWORD}" | docker login --username "${DOCKER_USERNAME}" --password-stdin;
             docker push ${IMAGE_NAME_TEST};
-          else
-            echo ">>> SKIP PUSHING <<<<";
           fi
         - echo ">>> BUILDING FINISHED <<<<"
-#    - stage: test
-#      script:
-#        - echo ">>> TESTING 1 <<<<"
-#        - docker run -it ${DOCKER_USERNAME}/travistest:${TRAVIS_BRANCH}-${TRAVIS_BUILD_NUMBER} ls
-###    - script: echo ">>> TESTING 2 <<<<"
     - stage: Deploys
-#      script:
-##        - skip
-#        - echo ">>> Deploy 1 TAG <<<<"
-#      deploy:
-#        provider: releases
-#        api_key: "$GITHUB_OAUTH_TOKEN"
-#        skip_cleanup: true
-#        on:
-#          tags: true
       script:
         - echo ">>> Deploy 2 Dockerhub ${TRAVIS_BRANCH} <<<<"
         - docker images
         - if [[ ${TRAVIS_BRANCH} =~ ${REGEX_PUSH_BRANCH} ]]; then
-            docker pull ${IMAGE_NAME}; true;
+            docker pull ${IMAGE_NAME} || true;
             docker images;
             docker build -t ${IMAGE_NAME} . ;
             echo "${DOCKER_PASSWORD}" | docker login --username "${DOCKER_USERNAME}" --password-stdin;
             docker push ${IMAGE_NAME};
           fi
-#    docker login -e="$DOCKER_EMAIL" -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD";
-#    docker push cinhtau/elasticsearch;
-#    fi
-#      deploy:
-#        provider: script
-#        script: echo ">>> Deploy 2.1 Dockerhub ${TRAVIS_BRANCH} <<<<"
-##          - echo ">>> Deploy 2.2 Dockerhub ${TRAVIS_BRANCH} <<<<"
-##          - bash scripts/deploy.sh staging $TRAVIS_TAG
-##          - docker build -t ${DOCKER_USERNAME}/travistest:${TRAVIS_BRANCH} .
-##          - echo "${DOCKER_PASSWORD}" | docker login --username "${DOCKER_USERNAME}" --password-stdin
-##          - docker push ${DOCKER_USERNAME}/travistest:${TRAVIS_BRANCH}
-#        skip_cleanup: true
-#        on:
-#          all_branches: true
-##          branch: development
-##           condition: $TRAVIS_BRANCH =~ ^development|staging|production$
 
 
 # para criar um release no github conforme a tag criada no Commit
