@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/sh
 
 #export TRAVIS_BRANCH=v1.0_tcc_staging
 export TRAVIS_BRANCH=v1.0_tcc_development

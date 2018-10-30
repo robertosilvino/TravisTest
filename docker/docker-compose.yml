@@ -1,18 +1,20 @@
-version: '3'
+version: '3.1'
 services:
   app:
     build:
       context: ../.
-      dockerfile: docker/development/Dockerfile
-      args:
-        RUBY_VERSION: "2.2"
-    image: robertosilvino/railsgirls-dev-base:latest
+      dockerfile: docker/Dockerfile
+#      args:
+#        RUBY_VERSION: "2.2"
+    image: teste #$DOCKER_HUB_NAME:development
     secrets:
       - secret_tst
     environment:
       - DB_DATABASENAME
       - RAILS_ENV
-    command: "./docker/test_env.sh && vi"
+      - ENV_SECRET_TST=/run/secrets/secret_tst
+#    command: "./docker/test_env.sh && vi"
+    command: "top"
 secrets:
   secret_tst:
     file: ./secret_tst.txt
